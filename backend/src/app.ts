@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { pool } from "./config/db.js";
+import authRoutes from "./modules/auth/auth.routes.js";
 
 const app = express();
 
@@ -27,5 +28,7 @@ app.get("/health", async (_req, res) => {
     });
   }
 });
+
+app.use("/api/auth", authRoutes);
 
 export default app;
