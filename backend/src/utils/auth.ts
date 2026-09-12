@@ -26,7 +26,7 @@ export async function comparePassword(
 
 export function generateAccessToken(payload: AccessTokenPayload): string {
   return jwt.sign(payload, JWT_SECRET as string, {
-    expiresIn: "15m",
+    expiresIn: "60m",
   });
 }
 
