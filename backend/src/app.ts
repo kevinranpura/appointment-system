@@ -3,6 +3,10 @@ import cors from "cors";
 import helmet from "helmet";
 import { pool } from "./config/db.js";
 import authRoutes from "./modules/auth/auth.routes.js";
+import branchRoutes from "./modules/branches/branch.routes.js";
+import serviceRoutes from "./modules/services/service.routes.js";
+import businessHoursRoutes from "./modules/branches/business-hours.routes.js";
+import availabilityRoutes from "./modules/availability/availability.routes.js";
 
 const app = express();
 
@@ -30,5 +34,9 @@ app.get("/health", async (_req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/branches", branchRoutes);
+app.use("/api/services", serviceRoutes);
+app.use("/api/business-hours", businessHoursRoutes);
+app.use("/api/availability", availabilityRoutes);
 
 export default app;
