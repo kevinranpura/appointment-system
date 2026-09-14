@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import {BookingError, createAppointment} from "./appointment.service.js";
+import {BookingError, createAppointment, getMyAppointments} from "./appointment.service.js";
 import { StatusError, updateAppointmentStatus} from "./appointment-status.service.js";
 
 export async function bookAppointment(
@@ -124,6 +124,29 @@ export async function changeAppointmentStatus(
     res.status(500).json({
       success: false,
       message: "Internal server error",
+    });
+  }
+}
+
+export async function getMyAppointmentsController(
+  req: Request,
+  res: Response
+) {
+  try {
+    const appointments = await getMyAppointments(
+      req.user!.userId
+    );
+
+    res.json({
+      success: true,
+      appointments,
+    });
+  } catch (error) {
+    console.error("Get my appointments error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch appointments",
     });
   }
 }

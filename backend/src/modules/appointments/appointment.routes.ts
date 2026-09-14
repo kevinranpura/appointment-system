@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { authenticate, requireRole } from "../../middlewares/auth.middleware.js";
-import { bookAppointment, changeAppointmentStatus } from "./appointment.controller.js";
+import { bookAppointment, changeAppointmentStatus, getMyAppointmentsController } from "./appointment.controller.js";
 
 const router = Router();
+
+router.get("/my", authenticate, getMyAppointmentsController);
 
 router.post(
   "/",

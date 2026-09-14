@@ -257,7 +257,7 @@ export async function createAppointment(
 
     if (
       appointmentCount +
-        reservationCount >=
+      reservationCount >=
       service.capacity
     ) {
       throw new BookingError(
@@ -436,6 +436,41 @@ export async function createAppointment(
   } finally {
     client.release();
   }
+}
+
+export async function getMyAppointments(customerId: string) {
+  const result = await pool.query(
+    `
+    SELECT
+      a.id,
+      a.appointment_number,
+      a.customer_id,
+      a.branch_id,
+      a.service_id,
+      a.start_time,
+      a.end_time,
+      a.status,
+      a.checked_in_at,
+      a.started_at,
+      a.completed_at,
+      a.cancelled_at,
+      a.no_show_at,
+      a.created_at,
+      a.updated_at,
+      b.name AS branch_name,
+      s.name AS service_name,
+      s.duration_minutes,
+      s.price
+    FROM appointments a
+    JOIN branches b ON b.id = a.branch_id
+    JOIN services s ON s.id = a.service_id
+    WHERE a.customer_id = $1
+    ORDER BY a.start_time DESC
+    `,
+    [customerId]
+  );
+
+  return result.rows;
 }
 
 function timeToMinutes(time: string): number {

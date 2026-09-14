@@ -1,4 +1,5 @@
 import { pool } from "../../config/db.js";
+import { getIO } from "../../sockets/socket.js";
 
 function generateQueueNumber() {
   return `Q-${Date.now().toString().slice(-6)}`;
@@ -110,6 +111,13 @@ export async function checkInAppointment(
 
     await client.query("COMMIT");
 
+    getIO()
+        .to(`branch:${appointment.branch_id}`)
+        .emit("queue-updated", {
+            type: "CUSTOMER_CHECKED_IN",
+            queueEntry: queueResult.rows[0],
+        });
+
     return queueResult.rows[0];
   } catch (error) {
     await client.query("ROLLBACK");
@@ -148,6 +156,13 @@ export async function createWalkIn(input: {
       generateQueueNumber(),
     ]
   );
+
+  getIO()
+    .to(`branch:${input.branchId}`)
+    .emit("queue-updated", {
+        type: "WALK_IN_ADDED",
+        queueEntry: result.rows[0],
+    });
 
   return result.rows[0];
 }
@@ -221,6 +236,13 @@ export async function callNext(branchId: number) {
 
     await client.query("COMMIT");
 
+    getIO()
+        .to(`branch:${branchId}`)
+        .emit("queue-updated", {
+            type: "CUSTOMER_CALLED",
+            queueEntry: updated.rows[0],
+        });
+
     return updated.rows[0];
   } catch (error) {
     await client.query("ROLLBACK");
@@ -262,6 +284,13 @@ export async function startQueueEntry(id: number) {
     );
   }
 
+  getIO()
+    .to(`branch:${result.rows[0].branch_id}`)
+    .emit("queue-updated", {
+        type: "SERVICE_STARTED",
+        queueEntry: result.rows[0],
+    });
+
   return result.rows[0];
 }
 
@@ -297,6 +326,13 @@ export async function completeQueueEntry(id: number) {
     );
   }
 
+  getIO()
+    .to(`branch:${result.rows[0].branch_id}`)
+    .emit("queue-updated", {
+        type: "SERVICE_COMPLETED",
+        queueEntry: result.rows[0],
+    });
+
   return result.rows[0];
 }
 
@@ -329,6 +365,13 @@ export async function markNoShow(id: number) {
       [result.rows[0].appointment_id]
     );
   }
+
+  getIO()
+    .to(`branch:${result.rows[0].branch_id}`)
+    .emit("queue-updated", {
+        type: "CUSTOMER_SKIPPED",
+        queueEntry: result.rows[0],
+    });
 
   return result.rows[0];
 }
