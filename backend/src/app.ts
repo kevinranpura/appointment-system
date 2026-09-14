@@ -9,6 +9,8 @@ import businessHoursRoutes from "./modules/branches/business-hours.routes.js";
 import availabilityRoutes from "./modules/availability/availability.routes.js";
 import appointmentRoutes from "./modules/appointments/appointment.routes.js";
 import reservationRoutes from "./modules/reservations/reservation.routes.js";
+import waitlistRoutes from "./modules/waitlist/waitlist.routes.js";
+import queueRoutes from "./modules/queue/queue.routes.js";
 
 const app = express();
 
@@ -42,5 +44,7 @@ app.use("/api/business-hours", businessHoursRoutes);
 app.use("/api/availability", availabilityRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/reservations", reservationRoutes);
+app.use("/api/waitlist", waitlistRoutes);
+app.use("/api/queue", queueRoutes);
 
 export default app;
