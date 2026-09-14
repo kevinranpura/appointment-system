@@ -6,6 +6,7 @@ interface CreateAppointmentInput {
   branchId: number;
   serviceId: number;
   startTime: string;
+  reservationId?: string;
 }
 
 interface CreatedAppointment {
@@ -240,12 +241,14 @@ export async function createAppointment(
         AND end_time > $3
         AND status = 'ACTIVE'
         AND expires_at > NOW()
+        AND ($5::uuid IS NULL OR id <> $5::uuid)
       `,
       [
         input.branchId,
         input.serviceId,
         startTime,
         endTime,
+        input.reservationId ?? null,
       ]
     );
 

@@ -8,6 +8,7 @@ import serviceRoutes from "./modules/services/service.routes.js";
 import businessHoursRoutes from "./modules/branches/business-hours.routes.js";
 import availabilityRoutes from "./modules/availability/availability.routes.js";
 import appointmentRoutes from "./modules/appointments/appointment.routes.js";
+import reservationRoutes from "./modules/reservations/reservation.routes.js";
 
 const app = express();
 
@@ -40,5 +41,6 @@ app.use("/api/services", serviceRoutes);
 app.use("/api/business-hours", businessHoursRoutes);
 app.use("/api/availability", availabilityRoutes);
 app.use("/api/appointments", appointmentRoutes);
+app.use("/api/reservations", reservationRoutes);
 
 export default app;
