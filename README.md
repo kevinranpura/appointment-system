@@ -321,8 +321,13 @@ A comprehensive appointment and queue management system built with Express.js, R
 3. **Run database migrations**
    ```bash
    cd backend
-   # The migrations will be applied when the server starts
-   npm run dev
+
+    # Apply database migrations
+        psql -U appointment_user -d appointment_db -f database/migrations/001_initial_schema.sql
+        psql -U appointment_user -d appointment_db -f database/migrations/002_refresh_tokens.sql
+
+    # Load sample data
+        psql -U appointment_user -d appointment_db -f database/seed.sql
    cd ..
    ```
 
@@ -426,16 +431,126 @@ http://localhost:5000/api-docs
 
 | Module | Endpoints |
 |--------|-----------|
-| **Auth** | `POST /api/auth/signup`, `POST /api/auth/login`, `POST /api/auth/refresh` |
+| **Auth** | `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/auth/logout`, `GET /api/auth/me` |
 | **Branches** | `GET /api/branches`, `POST /api/branches` |
 | **Services** | `GET /api/services`, `POST /api/services` |
-| **Business Hours** | `GET /api/business-hours`, `POST /api/business-hours` |
-| **Availability** | `GET /api/availability/slots` |
-| **Appointments** | `GET /api/appointments`, `POST /api/appointments`, `PATCH /api/appointments/:id` |
-| **Reservations** | `POST /api/reservations`, `GET /api/reservations/:id` |
-| **Waitlist** | `GET /api/waitlist`, `POST /api/waitlist`, `PATCH /api/waitlist/:id` |
-| **Queue** | `GET /api/queue`, `POST /api/queue/check-in`, `PATCH /api/queue/:id` |
-| **Admin** | `GET /api/admin/stats`, `GET /api/admin/audit-logs` |
+| **Business Hours** | `GET /api/business-hours/:branchId`, `PUT /api/business-hours/:branchId` |
+| **Availability** | `GET /api/availability?branchId=&serviceId=&date=` |
+| **Appointments** | `GET /api/appointments/my`, `POST /api/appointments`, `PATCH /api/appointments/:id/status` |
+| **Reservations** | `GET /api/reservations`, `POST /api/reservations`, `POST /api/reservations/:id/confirm`, `DELETE /api/reservations/:id` |
+| **Waitlist** | `POST /api/waitlist`, `GET /api/waitlist/my`, `DELETE /api/waitlist/:id`, `POST /api/waitlist/offer-next` |
+| **Queue** | `GET /api/queue`, `POST /api/queue/check-in`, `POST /api/queue/walk-in`, `POST /api/queue/call-next`, `PATCH /api/queue/:id/start`, `PATCH /api/queue/:id/complete`, `PATCH /api/queue/:id/no-show` |
+| **Admin** | `GET /api/admin/dashboard`, `GET /api/admin/analytics` |
+
+## Booking, Concurrency & Idempotency
+
+### Booking Flow
+
+1. Customer requests available slots for a branch, service and date.
+2. Availability is calculated using:
+   - Branch business hours
+   - Breaks
+   - Holidays
+   - Service duration
+   - Service capacity
+   - Existing appointments
+   - Active temporary reservations
+   - Required resources
+3. Customer can temporarily reserve a slot.
+4. The reservation expires automatically after the configured TTL.
+5. The customer confirms the reservation to create an appointment.
+6. Appointment creation performs a final availability re-check before committing.
+
+### Concurrency Control
+
+Appointment and reservation creation use PostgreSQL transactions and branch-level advisory locks.
+
+The booking flow:
+- Starts a database transaction
+- Acquires a PostgreSQL advisory transaction lock for the branch
+- Re-checks slot availability
+- Validates capacity and resource availability
+- Creates the appointment and resource assignments
+- Records appointment history
+- Commits the transaction
+
+This prevents concurrent booking requests from creating conflicting appointments for the same branch.
+
+### Idempotency
+
+The database includes an `idempotency_keys` table as the foundation for idempotent request handling. Critical identifiers such as appointment numbers and refresh-token hashes also use unique database constraints.
+
+> Current limitation: full idempotency-key middleware is not yet wired into every write endpoint.
+
+
+## Waitlist Logic
+
+Customers can join a waitlist for a specific branch, service and requested date.
+
+Each entry can optionally include:
+- Preferred start time
+- Preferred end time
+- Priority level
+
+Supported priorities:
+- `NORMAL`
+- `PRIORITY`
+- `EMERGENCY`
+
+Waitlist ordering is determined by priority first and join time second:
+
+`EMERGENCY → PRIORITY → NORMAL`
+
+Within the same priority, earlier entries are processed first.
+
+Staff/Admin users can use the `offer-next` operation to select the next eligible waiting customer. The selected entry changes from `WAITING` to `OFFERED` and receives a 15-minute offer expiry.
+
+Customers can view and cancel their waitlist entries from the customer dashboard.
+
+
+## Queue Prioritization & Resource Allocation
+
+### Queue Prioritization
+
+Queue entries are ordered using:
+
+1. Priority level
+2. Check-in time
+
+Priority order:
+
+`EMERGENCY → PRIORITY → NORMAL`
+
+Queue entries progress through:
+
+`WAITING → CALLED → IN_PROGRESS → COMPLETED`
+
+Entries can also be marked as `SKIPPED` or `CANCELLED`.
+
+Staff can:
+- Check in scheduled customers
+- Add walk-in customers
+- Call the next customer
+- Start service
+- Complete service
+- Mark customers as no-show/skip
+
+### Resource Allocation
+
+Services define their required resource types and quantities.
+
+Examples:
+- General Consultation → 1 ROOM
+- Quick Service → 1 COUNTER
+- Extended Consultation → 1 ROOM
+
+During booking, the system:
+- Finds resources assigned to the selected branch
+- Checks existing appointment resource allocations
+- Verifies overlapping bookings
+- Assigns available resources to the new appointment
+
+Resource assignments are stored in the `appointment_resources` table.
 
 ## Project Structure
 
@@ -533,10 +648,11 @@ The system uses **BullMQ** for async job processing:
 
 ### Job Types
 
-- **Reservation Expiry**: Automatically expires reservations after TTL
-- **Waitlist Processing**: Matches available slots to waitlisted customers
-- **Notification Dispatch**: Sends notifications to users
-- **Appointment Reminders**: Sends reminders before appointments
+- **Reservation Expiry**: Automatically expires active temporary reservations after the configured TTL.
+
+The reservation workflow creates a delayed BullMQ job when a reservation is created. The worker processes the job after the TTL and marks the reservation as `EXPIRED` if it is still active.
+
+Redis is used as the BullMQ job backend rather than as an application cache.
 
 ### Starting the Worker
 
@@ -548,31 +664,12 @@ The worker monitors Redis job queues and processes jobs automatically.
 
 ## WebSocket Events
 
-Real-time updates via Socket.io:
+The system uses Socket.IO for real-time queue updates.
+
+Clients join a branch-specific room:
 
 ```javascript
-// Queue Updates
-socket.on('queue:updated', (data) => {
-  // Queue status changed
-})
-
-socket.on('queue:called', (data) => {
-  // Customer called from queue
-})
-
-// Appointment Updates
-socket.on('appointment:status-changed', (data) => {
-  // Appointment status updated
-})
-
-socket.on('appointment:confirmed', (data) => {
-  // Appointment confirmed
-})
-
-// Waitlist Updates
-socket.on('waitlist:slot-offered', (data) => {
-  // Slot offered to waitlisted customer
-})
+socket.emit("join-branch", branchId);
 ```
 
 ## Key Modules
@@ -585,7 +682,9 @@ socket.on('waitlist:slot-offered', (data) => {
 
 ### Appointment Module
 - Full appointment lifecycle management
-- Status tracking (PENDING → CONFIRMED → CHECKED_IN → COMPLETED)
+- Valid status transitions:
+  `PENDING → CONFIRMED → CHECKED_IN → IN_PROGRESS → COMPLETED`
+- Cancellation and no-show handling
 - Appointment history tracking
 - Resource assignment to appointments
 
@@ -601,16 +700,20 @@ socket.on('waitlist:slot-offered', (data) => {
 - Call management for queue entries
 
 ### Waitlist Module
-- Automatic slot matching
-- Priority levels for waitlist entries
-- Automatic offer generation
-- Expiry management
+- Waitlist entries by branch, service and date
+- Priority-based ordering
+- Optional preferred time range
+- Staff/Admin waitlist offer generation
+- 15-minute offer expiry
+- Customer waitlist cancellation
 
 ### Reservation Module
 - Temporary slot reservations
-- TTL-based expiry
+- Configurable TTL-based expiry
+- PostgreSQL transaction and advisory-lock protection
 - Conversion to appointments
-- Idempotent reservation creation
+- Reservation cancellation
+- BullMQ-based expiry processing
 
 ## Contributing
 
