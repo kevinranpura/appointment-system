@@ -55,6 +55,22 @@ function App() {
 
   const [user, setUser] = useState<User | null>(null);
 
+  const [isRegistering, setIsRegistering] = useState(false);
+
+  const [registerName, setRegisterName] = useState("");
+  const [registerEmail, setRegisterEmail] = useState("");
+  const [registerPhone, setRegisterPhone] = useState("");
+  const [registerPassword, setRegisterPassword] = useState("");
+  const [registerConfirmPassword, setRegisterConfirmPassword] = useState("");
+  const [registerError, setRegisterError] = useState("");
+  const [registerSuccess, setRegisterSuccess] = useState("");
+
+  const [registerRole, setRegisterRole] = useState<
+    "CUSTOMER" | "STAFF" | "ADMIN"
+  >("CUSTOMER");
+
+  const [registerRoleKey, setRegisterRoleKey] = useState("");
+
   const [email, setEmail] = useState("customer@example.com");
   const [password, setPassword] = useState("CustomerPassword123!");
   const [loginError, setLoginError] = useState("");
@@ -75,6 +91,61 @@ function App() {
     } catch (error: any) {
       setLoginError(
         error.response?.data?.message || "Invalid email or password"
+      );
+    }
+  };
+
+  const register = async () => {
+    try {
+      setRegisterError("");
+      setRegisterSuccess("");
+
+      if (!registerName.trim()) {
+        setRegisterError("Name is required");
+        return;
+      }
+
+      if (!registerEmail.trim()) {
+        setRegisterError("Email is required");
+        return;
+      }
+
+      if (registerPassword.length < 8) {
+        setRegisterError("Password must be at least 8 characters");
+        return;
+      }
+
+      if (registerPassword !== registerConfirmPassword) {
+        setRegisterError("Passwords do not match");
+        return;
+      }
+
+      await api.post("/auth/register", {
+        name: registerName.trim(),
+        email: registerEmail.trim(),
+        phone: registerPhone.trim(),
+        password: registerPassword,
+        role: registerRole,
+        roleKey: registerRole === "CUSTOMER" ? undefined : registerRoleKey,
+      });
+
+      setRegisterSuccess("Account created successfully. You can now sign in.");
+
+      setRegisterName("");
+      setRegisterEmail("");
+      setRegisterPhone("");
+      setRegisterPassword("");
+      setRegisterConfirmPassword("");
+      setRegisterRole("CUSTOMER");
+      setRegisterRoleKey("");
+
+      setTimeout(() => {
+        setIsRegistering(false);
+        setRegisterSuccess("");
+      }, 1200);
+    } catch (error: any) {
+      setRegisterError(
+        error.response?.data?.message || "Could not create account"
       );
     }
   };
@@ -104,75 +175,268 @@ function App() {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
         <div className="w-full max-w-md">
+
           <div className="mb-8 text-center text-white">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500 text-2xl font-bold">
-              Q
+              S
             </div>
 
-            <h1 className="text-3xl font-bold">QueueCare</h1>
+            <h1 className="text-3xl font-bold">
+              Smart Appointment System
+            </h1>
+
             <p className="mt-2 text-slate-400">
               Smart Appointment & Queue Management
             </p>
           </div>
 
           <div className="rounded-2xl bg-white p-8 shadow-2xl">
-            <h2 className="text-xl font-semibold text-slate-900">
-              Sign in
-            </h2>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Access your appointment dashboard
-            </p>
+            {!isRegistering ? (
+              <>
+                <h2 className="text-xl font-semibold text-slate-900">
+                  Sign in
+                </h2>
 
-            <div className="mt-6 space-y-4">
-              <div>
-                <label className="text-sm font-medium text-slate-700">
-                  Email
-                </label>
+                <p className="mt-1 text-sm text-slate-500">
+                  Access your appointment dashboard
+                </p>
 
-                <input
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
-                />
-              </div>
+                <div className="mt-6 space-y-4">
 
-              <div>
-                <label className="text-sm font-medium text-slate-700">
-                  Password
-                </label>
+                  <div>
+                    <label className="text-sm font-medium text-slate-700">
+                      Email
+                    </label>
 
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") login();
-                  }}
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
-                />
-              </div>
+                    <input
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+                    />
+                  </div>
 
-              {loginError && (
-                <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
-                  {loginError}
+                  <div>
+                    <label className="text-sm font-medium text-slate-700">
+                      Password
+                    </label>
+
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") login();
+                      }}
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  {loginError && (
+                    <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+                      {loginError}
+                    </div>
+                  )}
+
+                  <button
+                    onClick={login}
+                    className="w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white transition hover:bg-indigo-700"
+                  >
+                    Sign in
+                  </button>
                 </div>
-              )}
 
-              <button
-                onClick={login}
-                className="w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white transition hover:bg-indigo-700"
-              >
-                Sign in
-              </button>
-            </div>
+                <div className="mt-6 text-center">
+                  <p className="text-sm text-slate-500">
+                    Don't have an account?
+                  </p>
 
-            <div className="mt-6 rounded-xl bg-slate-50 p-4 text-xs text-slate-500">
-              <p className="font-semibold text-slate-700">Demo accounts</p>
-              <p className="mt-1">Customer: customer@example.com</p>
-              <p>Staff: staff@example.com</p>
-              <p>Admin: admin@example.com</p>
-            </div>
+                  <button
+                    onClick={() => {
+                      setIsRegistering(true);
+                      setLoginError("");
+                    }}
+                    className="mt-1 text-sm font-semibold text-indigo-600 hover:text-indigo-700"
+                  >
+                    Create an account
+                  </button>
+                </div>
+
+                <div className="mt-6 rounded-xl bg-slate-50 p-4 text-xs text-slate-500">
+                  <p className="font-semibold text-slate-700">
+                    Demo accounts
+                  </p>
+                  <p className="mt-1">
+                    Customer: customer@example.com
+                  </p>
+                  <p>Staff: staff@example.com</p>
+                  <p>Admin: admin@example.com</p>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-semibold text-slate-900">
+                  Create an account
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Register to book appointments
+                </p>
+
+                <div className="mt-6 space-y-4">
+
+                  <div>
+                    <label className="text-sm font-medium text-slate-700">
+                      Name
+                    </label>
+
+                    <input
+                      value={registerName}
+                      onChange={(e) => setRegisterName(e.target.value)}
+                      placeholder="John Doe"
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-slate-700">
+                      Email
+                    </label>
+
+                    <input
+                      type="email"
+                      value={registerEmail}
+                      onChange={(e) => setRegisterEmail(e.target.value)}
+                      placeholder="john@example.com"
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-slate-700">
+                      Phone
+                    </label>
+
+                    <input
+                      value={registerPhone}
+                      onChange={(e) => setRegisterPhone(e.target.value)}
+                      placeholder="9876543210"
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-slate-700">
+                      Account type
+                    </label>
+
+                    <select
+                      value={registerRole}
+                      onChange={(e) => {
+                        setRegisterRole(
+                          e.target.value as "CUSTOMER" | "STAFF" | "ADMIN"
+                        );
+                        setRegisterRoleKey("");
+                      }}
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+                    >
+                      <option value="CUSTOMER">Customer</option>
+                      <option value="STAFF">Staff</option>
+                      <option value="ADMIN">Admin</option>
+                    </select>
+                  </div>
+
+                  {registerRole !== "CUSTOMER" && (
+                    <div>
+                      <label className="text-sm font-medium text-slate-700">
+                        {registerRole === "ADMIN"
+                          ? "Admin signup key"
+                          : "Staff signup key"}
+                      </label>
+
+                      <input
+                        type="password"
+                        value={registerRoleKey}
+                        onChange={(e) => setRegisterRoleKey(e.target.value)}
+                        placeholder="Enter signup key"
+                        className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+                      />
+
+                      <p className="mt-1 text-xs text-slate-500">
+                        Required to create a {registerRole.toLowerCase()} account.
+                      </p>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="text-sm font-medium text-slate-700">
+                      Password
+                    </label>
+
+                    <input
+                      type="password"
+                      value={registerPassword}
+                      onChange={(e) => setRegisterPassword(e.target.value)}
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-slate-700">
+                      Confirm password
+                    </label>
+
+                    <input
+                      type="password"
+                      value={registerConfirmPassword}
+                      onChange={(e) =>
+                        setRegisterConfirmPassword(e.target.value)
+                      }
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") register();
+                      }}
+                      className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  {registerError && (
+                    <div className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+                      {registerError}
+                    </div>
+                  )}
+
+                  {registerSuccess && (
+                    <div className="rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-600">
+                      {registerSuccess}
+                    </div>
+                  )}
+
+                  <button
+                    onClick={register}
+                    className="w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white transition hover:bg-indigo-700"
+                  >
+                    Create account
+                  </button>
+                </div>
+
+                <div className="mt-6 text-center">
+                  <p className="text-sm text-slate-500">
+                    Already have an account?
+                  </p>
+
+                  <button
+                    onClick={() => {
+                      setIsRegistering(false);
+                      setRegisterError("");
+                      setRegisterSuccess("");
+                    }}
+                    className="mt-1 text-sm font-semibold text-indigo-600 hover:text-indigo-700"
+                  >
+                    Back to sign in
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -211,11 +475,11 @@ function Layout({
           <div>
             <div className="flex items-center gap-2">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 font-bold text-white">
-                Q
+                S
               </div>
 
               <span className="text-lg font-bold text-slate-900">
-                QueueCare
+                Smart Appointment System
               </span>
             </div>
           </div>
@@ -265,6 +529,9 @@ function CustomerDashboard({
   const [serviceId, setServiceId] = useState(1);
   const [slots, setSlots] = useState<any[]>([]);
   const [message, setMessage] = useState("");
+  const [reservation, setReservation] = useState<any | null>(null);
+  const [reservationSeconds, setReservationSeconds] = useState(0);
+  const [reserving, setReserving] = useState(false);
 
   const loadData = async () => {
     try {
@@ -289,6 +556,43 @@ function CustomerDashboard({
   useEffect(() => {
     loadData();
   }, []);
+
+  useEffect(() => {
+    if (!reservation?.expires_at) return;
+
+    const updateTimer = () => {
+      const remaining = Math.max(
+        0,
+        Math.floor(
+          (new Date(reservation.expires_at).getTime() -
+            Date.now()) /
+          1000
+        )
+      );
+
+      setReservationSeconds(remaining);
+
+      if (remaining === 0) {
+        setReservation(null);
+        setMessage("Your reservation has expired.");
+      }
+    };
+
+    updateTimer();
+
+    const timer = setInterval(updateTimer, 1000);
+
+    return () => clearInterval(timer);
+  }, [reservation]);
+
+  const formatCountdown = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+
+    return `${String(minutes).padStart(2, "0")}:${String(
+      remainingSeconds
+    ).padStart(2, "0")}`;
+  };
 
   const findAvailability = async () => {
     try {
@@ -333,8 +637,11 @@ function CustomerDashboard({
     return new Date(`${date}T${time}`).toISOString();
   };
 
-  const bookAppointment = async (slot: any) => {
+  const holdSlot = async (slot: any) => {
     try {
+      setReserving(true);
+      setMessage("");
+
       const startTime = getSlotStart(slot);
 
       if (!startTime) {
@@ -342,13 +649,62 @@ function CustomerDashboard({
         return;
       }
 
-      const appointmentStart = getSlotDateTime(date, startTime);
+      const startDateTime = getSlotDateTime(date, startTime);
 
-      await api.post("/appointments", {
+      const service = services.find(
+        (item) => Number(item.id) === serviceId
+      );
+
+      if (!service) {
+        setMessage("Service not found.");
+        return;
+      }
+
+      const endDateTime = new Date(
+        new Date(startDateTime).getTime() +
+        service.duration_minutes * 60 * 1000
+      ).toISOString();
+
+      const response = await api.post("/reservations", {
         branchId: 1,
         serviceId,
-        startTime: appointmentStart,
+        startTime: startDateTime,
+        endTime: endDateTime,
       });
+
+      setReservation(response.data.data);
+
+      setMessage(
+        "Slot held temporarily. Confirm your appointment before it expires."
+      );
+
+    } catch (error: any) {
+      console.error(
+        "Reservation error:",
+        error.response?.data || error
+      );
+
+      setMessage(
+        error.response?.data?.message ||
+        "Could not reserve this slot"
+      );
+    } finally {
+      setReserving(false);
+    }
+  };
+
+  const confirmReservation = async () => {
+    if (!reservation) return;
+
+    try {
+      setReserving(true);
+
+      await api.post(
+        `/reservations/${reservation.id}/confirm`
+      );
+
+      setReservation(null);
+      setReservationSeconds(0);
 
       setMessage("Appointment booked successfully.");
 
@@ -356,13 +712,37 @@ function CustomerDashboard({
       await findAvailability();
     } catch (error: any) {
       console.error(
-        "Booking error:",
+        "Confirmation error:",
         error.response?.data || error
       );
 
       setMessage(
         error.response?.data?.message ||
-        "Could not book appointment"
+        "Could not confirm appointment"
+      );
+    } finally {
+      setReserving(false);
+    }
+  };
+
+  const cancelReservation = async () => {
+    if (!reservation) return;
+
+    try {
+      await api.delete(
+        `/reservations/${reservation.id}`
+      );
+
+      setReservation(null);
+      setReservationSeconds(0);
+
+      setMessage("Reservation cancelled.");
+
+      await findAvailability();
+    } catch (error: any) {
+      setMessage(
+        error.response?.data?.message ||
+        "Could not cancel reservation"
       );
     }
   };
@@ -445,6 +825,81 @@ function CustomerDashboard({
         </div>
       </div>
 
+      {reservation && (
+        <section className="mt-8 rounded-2xl border border-indigo-200 bg-indigo-50 p-6">
+          <div className="flex flex-col gap-6">
+
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-semibold text-indigo-600">
+                  Slot Reserved
+                </p>
+
+                <h2 className="mt-1 text-xl font-bold text-slate-900">
+                  Complete your booking
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-600">
+                  This slot is temporarily held for you.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-white px-4 py-3 text-center shadow-sm">
+                <p className="text-xs text-slate-500">
+                  Expires in
+                </p>
+
+                <p className="text-2xl font-bold text-indigo-600">
+                  {formatCountdown(reservationSeconds)}
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-xl bg-white p-4">
+              <p className="text-sm font-semibold text-slate-900">
+                {services.find(
+                  (service) =>
+                    Number(service.id) ===
+                    Number(reservation.service_id)
+                )?.name || "Appointment"}
+              </p>
+
+              <p className="mt-1 text-sm text-slate-500">
+                {new Date(
+                  reservation.start_time
+                ).toLocaleString([], {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
+
+              <button
+                onClick={cancelReservation}
+                disabled={reserving}
+                className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+              >
+                Cancel Reservation
+              </button>
+
+              <button
+                onClick={confirmReservation}
+                disabled={reserving || reservationSeconds <= 0}
+                className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {reserving
+                  ? "Confirming..."
+                  : "Confirm Appointment →"}
+              </button>
+
+            </div>
+
+          </div>
+        </section>
+      )}
+
       {slots.length > 0 && (
         <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
           <h2 className="font-semibold text-slate-900">Available slots</h2>
@@ -459,7 +914,7 @@ function CustomerDashboard({
                 return (
                   <button
                     key={index}
-                    onClick={() => bookAppointment(slot)}
+                    onClick={() => holdSlot(slot)}
                     className="rounded-xl border border-slate-200 p-4 text-left transition hover:border-indigo-500 hover:bg-indigo-50"
                   >
                     <p className="font-semibold text-slate-900">
@@ -471,7 +926,7 @@ function CustomerDashboard({
                     </p>
 
                     <p className="mt-2 text-xs font-medium text-indigo-600">
-                      Book this slot →
+                      Reserve this slot →
                     </p>
                   </button>
                 );
@@ -543,6 +998,14 @@ function StaffDashboard({
   const [queue, setQueue] = useState<QueueEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [walkInOpen, setWalkInOpen] = useState(false);
+  const [walkInName, setWalkInName] = useState("");
+  const [walkInPhone, setWalkInPhone] = useState("");
+  const [walkInService, setWalkInService] = useState(1);
+  const [walkInPriority, setWalkInPriority] =
+    useState<"NORMAL" | "PRIORITY" | "EMERGENCY">("NORMAL");
+
+  const [services, setServices] = useState<Service[]>([]);
 
   const loadQueue = async () => {
     try {
@@ -563,6 +1026,15 @@ function StaffDashboard({
   useEffect(() => {
     loadQueue();
 
+    api
+      .get("/services")
+      .then((response) => {
+        setServices(response.data.services || []);
+      })
+      .catch((error) => {
+        console.error("Failed to load services:", error);
+      });
+
     const socket = io("http://localhost:5000", {
       transports: ["websocket"],
     });
@@ -581,6 +1053,43 @@ function StaffDashboard({
       socket.disconnect();
     };
   }, []);
+
+  const addWalkIn = async () => {
+    try {
+      if (!walkInName.trim()) {
+        setMessage("Customer name is required.");
+        return;
+      }
+
+      await api.post("/queue/walk-in", {
+        branchId: 1,
+        customerName: walkInName.trim(),
+        customerPhone: walkInPhone.trim() || undefined,
+        serviceId: walkInService,
+        priority: walkInPriority,
+      });
+
+      setMessage("Walk-in added to the queue.");
+
+      setWalkInName("");
+      setWalkInPhone("");
+      setWalkInService(services[0]?.id || 1);
+      setWalkInPriority("NORMAL");
+      setWalkInOpen(false);
+
+      await loadQueue();
+    } catch (error: any) {
+      console.error(
+        "Walk-in error:",
+        error.response?.data || error
+      );
+
+      setMessage(
+        error.response?.data?.message ||
+        "Could not add walk-in"
+      );
+    }
+  };
 
   const callNext = async () => {
     try {
@@ -657,13 +1166,22 @@ function StaffDashboard({
           </p>
         </div>
 
-        <button
-          onClick={callNext}
-          disabled={loading}
-          className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
-        >
-          {loading ? "Calling..." : "Call next"}
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => setWalkInOpen(true)}
+            className="rounded-xl border border-slate-200 bg-white px-5 py-3 font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+          >
+            + Add Walk-in
+          </button>
+
+          <button
+            onClick={callNext}
+            disabled={loading}
+            className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
+          >
+            {loading ? "Calling..." : "Call next"}
+          </button>
+        </div>
       </div>
 
       <div className="mt-5 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
@@ -745,6 +1263,119 @@ function StaffDashboard({
           </div>
         )}
       </div>
+
+      {walkInOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">
+                  Add Walk-in
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-500">
+                  Add a customer directly to the queue.
+                </p>
+              </div>
+
+              <button
+                onClick={() => setWalkInOpen(false)}
+                className="text-slate-400 hover:text-slate-600"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-4">
+
+              <div>
+                <label className="text-sm font-medium text-slate-700">
+                  Customer name
+                </label>
+
+                <input
+                  value={walkInName}
+                  onChange={(e) =>
+                    setWalkInName(e.target.value)
+                  }
+                  placeholder="John Doe"
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-slate-700">
+                  Phone number
+                </label>
+
+                <input
+                  value={walkInPhone}
+                  onChange={(e) =>
+                    setWalkInPhone(e.target.value)
+                  }
+                  placeholder="9876543210"
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-slate-700">
+                  Service
+                </label>
+
+                <select
+                  value={walkInService}
+                  onChange={(e) =>
+                    setWalkInService(Number(e.target.value))
+                  }
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none"
+                >
+                  {services.map((service) => (
+                    <option
+                      key={service.id}
+                      value={Number(service.id)}
+                    >
+                      {service.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-slate-700">
+                  Priority
+                </label>
+
+                <select
+                  value={walkInPriority}
+                  onChange={(e) =>
+                    setWalkInPriority(
+                      e.target.value as
+                      | "NORMAL"
+                      | "PRIORITY"
+                      | "EMERGENCY"
+                    )
+                  }
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none"
+                >
+                  <option value="NORMAL">Normal</option>
+                  <option value="PRIORITY">Priority</option>
+                  <option value="EMERGENCY">Emergency</option>
+                </select>
+              </div>
+
+              <button
+                onClick={addWalkIn}
+                className="w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white hover:bg-indigo-700"
+              >
+                Add to Queue
+              </button>
+
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }
@@ -767,68 +1398,42 @@ function AdminDashboard({
     services: 0,
   });
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // useEffect(() => {
-  //   loadDashboard();
-  // }, []);
+  useEffect(() => {
+    loadDashboard();
+  }, []);
 
-  // const loadDashboard = async () => {
-  //   try {
-  //     setError("");
+  const loadDashboard = async () => {
+    try {
+      const response = await api.get("/admin/dashboard");
 
-  //     const response = await api.get("/admin/dashboard");
+      setStats(response.data.stats);
+    } catch (error: any) {
+      console.error(
+        "Admin dashboard error:",
+        error.response?.data || error
+      );
 
-  //     setStats(response.data.stats);
-  //   } catch (error: any) {
-  //     console.error(
-  //       "Admin dashboard error:",
-  //       error.response?.data || error
-  //     );
-
-  //     setError(
-  //       error.response?.data?.message ||
-  //         "Could not load dashboard"
-  //     );
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+      setError(
+        error.response?.data?.message ||
+        "Could not load dashboard"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const cards = [
-    {
-      label: "Total Appointments",
-      value: stats.totalAppointments,
-    },
-    {
-      label: "Today's Appointments",
-      value: stats.todayAppointments,
-    },
-    {
-      label: "Completed",
-      value: stats.completedAppointments,
-    },
-    {
-      label: "Cancelled",
-      value: stats.cancelledAppointments,
-    },
-    {
-      label: "Active Queue",
-      value: stats.activeQueue,
-    },
-    {
-      label: "Customers",
-      value: stats.customers,
-    },
-    {
-      label: "Branches",
-      value: stats.branches,
-    },
-    {
-      label: "Services",
-      value: stats.services,
-    },
+    ["Total Appointments", stats.totalAppointments],
+    ["Today's Appointments", stats.todayAppointments],
+    ["Completed", stats.completedAppointments],
+    ["Cancelled", stats.cancelledAppointments],
+    ["Active Queue", stats.activeQueue],
+    ["Customers", stats.customers],
+    ["Branches", stats.branches],
+    ["Services", stats.services],
   ];
 
   return (
@@ -858,112 +1463,103 @@ function AdminDashboard({
       </div>
 
       {loading ? (
-        <div className="rounded-2xl bg-white p-10 text-center shadow-sm ring-1 ring-slate-100">
+        <div className="rounded-2xl bg-white p-10 text-center shadow-sm">
           <p className="text-sm text-slate-500">
             Loading dashboard...
           </p>
         </div>
       ) : (
-        <>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {cards.map((card) => (
-              <StatCard
-                key={card.label}
-                label={card.label}
-                value={card.value}
-              />
-            ))}
-          </div>
-
-          <div className="mt-8 grid gap-6 lg:grid-cols-2">
-            <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-              <h3 className="text-lg font-semibold text-slate-900">
-                Appointment Summary
-              </h3>
-
-              <div className="mt-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-500">
-                    Today's appointments
-                  </span>
-
-                  <span className="font-semibold text-slate-900">
-                    {stats.todayAppointments}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-500">
-                    Completed
-                  </span>
-
-                  <span className="font-semibold text-emerald-600">
-                    {stats.completedAppointments}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-500">
-                    Cancelled
-                  </span>
-
-                  <span className="font-semibold text-red-600">
-                    {stats.cancelledAppointments}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-              <h3 className="text-lg font-semibold text-slate-900">
-                System Resources
-              </h3>
-
-              <div className="mt-5 space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-500">
-                    Customers
-                  </span>
-
-                  <span className="font-semibold text-slate-900">
-                    {stats.customers}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-500">
-                    Branches
-                  </span>
-
-                  <span className="font-semibold text-slate-900">
-                    {stats.branches}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-500">
-                    Services
-                  </span>
-
-                  <span className="font-semibold text-slate-900">
-                    {stats.services}
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-500">
-                    Active queue
-                  </span>
-
-                  <span className="font-semibold text-indigo-600">
-                    {stats.activeQueue}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {cards.map(([label, value]) => (
+            <StatCard
+              key={label}
+              label={label as string}
+              value={value as number}
+            />
+          ))}
+        </div>
       )}
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-2">
+        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+          <h3 className="text-lg font-semibold text-slate-900">
+            Appointment Summary
+          </h3>
+
+          <div className="mt-5 space-y-4">
+            <div className="flex justify-between">
+              <span className="text-sm text-slate-500">
+                Today's appointments
+              </span>
+              <span className="font-semibold">
+                {stats.todayAppointments}
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-sm text-slate-500">
+                Completed
+              </span>
+              <span className="font-semibold text-emerald-600">
+                {stats.completedAppointments}
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-sm text-slate-500">
+                Cancelled
+              </span>
+              <span className="font-semibold text-red-600">
+                {stats.cancelledAppointments}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
+          <h3 className="text-lg font-semibold text-slate-900">
+            System Overview
+          </h3>
+
+          <div className="mt-5 space-y-4">
+            <div className="flex justify-between">
+              <span className="text-sm text-slate-500">
+                Customers
+              </span>
+              <span className="font-semibold">
+                {stats.customers}
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-sm text-slate-500">
+                Branches
+              </span>
+              <span className="font-semibold">
+                {stats.branches}
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-sm text-slate-500">
+                Services
+              </span>
+              <span className="font-semibold">
+                {stats.services}
+              </span>
+            </div>
+
+            <div className="flex justify-between">
+              <span className="text-sm text-slate-500">
+                Active queue
+              </span>
+              <span className="font-semibold text-indigo-600">
+                {stats.activeQueue}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </Layout>
   );
 }

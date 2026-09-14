@@ -11,12 +11,16 @@ import appointmentRoutes from "./modules/appointments/appointment.routes.js";
 import reservationRoutes from "./modules/reservations/reservation.routes.js";
 import waitlistRoutes from "./modules/waitlist/waitlist.routes.js";
 import queueRoutes from "./modules/queue/queue.routes.js";
+import adminRoutes from "./modules/admin/admin.routes.js";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger.js";
 
 const app = express();
 
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.get("/health", async (_req, res) => {
   try {
@@ -46,5 +50,6 @@ app.use("/api/appointments", appointmentRoutes);
 app.use("/api/reservations", reservationRoutes);
 app.use("/api/waitlist", waitlistRoutes);
 app.use("/api/queue", queueRoutes);
+app.use("/api/admin", adminRoutes);
 
 export default app;

@@ -1,18 +1,25 @@
 import { Request, Response } from "express";
 import { pool } from "../../config/db.js";
-import { 
-    hashPassword, 
-    comparePassword, 
-    generateAccessToken, 
-    generateRefreshToken, 
-    hashRefreshToken, 
-    compareRefreshToken
+import {
+  hashPassword,
+  comparePassword,
+  generateAccessToken,
+  generateRefreshToken,
+  hashRefreshToken,
+  compareRefreshToken
 } from "../../utils/auth.js";
 
 
 export async function register(req: Request, res: Response): Promise<void> {
   try {
-    const { name, email, phone, password } = req.body;
+    const {
+      name,
+      email,
+      phone,
+      password,
+      role = "CUSTOMER",
+      roleKey,
+    } = req.body;
 
     if (!name || !email || !phone || !password) {
       res.status(400).json({
@@ -22,7 +29,40 @@ export async function register(req: Request, res: Response): Promise<void> {
       return;
     }
 
+    const requestedRole = String(role).toUpperCase();
+
+    if (!["CUSTOMER", "STAFF", "ADMIN"].includes(requestedRole)) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid role",
+      });
+      return;
+    }
+
+    // Customer registration does not require a role key.
+    // Staff/Admin registration requires the corresponding environment key.
+    if (requestedRole === "STAFF") {
+      if (!process.env.STAFF_SIGNUP_KEY || roleKey !== process.env.STAFF_SIGNUP_KEY) {
+        res.status(403).json({
+          success: false,
+          message: "Invalid staff signup key",
+        });
+        return;
+      }
+    }
+
+    if (requestedRole === "ADMIN") {
+      if (!process.env.ADMIN_SIGNUP_KEY || roleKey !== process.env.ADMIN_SIGNUP_KEY) {
+        res.status(403).json({
+          success: false,
+          message: "Invalid admin signup key",
+        });
+        return;
+      }
+    }
+
     const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPhone = phone.trim();
 
     const existingUser = await pool.query(
       `
@@ -30,7 +70,7 @@ export async function register(req: Request, res: Response): Promise<void> {
       FROM users
       WHERE email = $1 OR phone = $2
       `,
-      [normalizedEmail, phone.trim()]
+      [normalizedEmail, normalizedPhone]
     );
 
     if (existingUser.rows.length > 0) {
@@ -52,10 +92,16 @@ export async function register(req: Request, res: Response): Promise<void> {
         password_hash,
         role
       )
-      VALUES ($1, $2, $3, $4, 'CUSTOMER')
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING id, name, email, phone, role, created_at
       `,
-      [name.trim(), normalizedEmail, phone.trim(), passwordHash]
+      [
+        name.trim(),
+        normalizedEmail,
+        normalizedPhone,
+        passwordHash,
+        requestedRole,
+      ]
     );
 
     res.status(201).json({
