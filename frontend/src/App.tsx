@@ -136,9 +136,9 @@ function App() {
         <div className="relative hidden h-full flex-col justify-between overflow-hidden bg-[#12241D] px-12 py-12 lg:flex lg:w-1/2">
           <div>
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-md bg-[#2B6E56] font-mono text-xl font-bold text-white">
+              {/* <div className="flex h-11 w-11 items-center justify-center rounded-md bg-[#2B6E56] font-mono text-xl font-bold text-white">
                 S
-              </div>
+              </div> */}
 
               <span className="text-xl font-semibold text-[#F2F0E6]">
                 Smart Appointment System
@@ -277,9 +277,9 @@ function App() {
         <div className="flex h-full flex-1 items-center justify-center overflow-y-auto px-4 py-8 lg:w-1/2">
           <div className="w-full max-w-md">
             <div className="mb-6 text-center lg:hidden">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-[#2B6E56] font-mono text-xl font-bold text-white">
+              {/* <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-[#2B6E56] font-mono text-xl font-bold text-white">
                 S
-              </div>
+              </div> */}
 
               <h1 className="text-2xl font-semibold text-[#F2F0E6]">
                 Smart Appointment System

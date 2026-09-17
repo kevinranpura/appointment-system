@@ -19,9 +19,9 @@ export default function Layout({
       <header className="border-b border-white/10 bg-[#16211C]">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#2B6E56] font-mono font-bold text-white">
+            {/* <div className="flex h-9 w-9 items-center justify-center rounded-md bg-[#2B6E56] font-mono font-bold text-white">
               S
-            </div>
+            </div> */}
 
             <span className="text-lg font-semibold text-[#F2F0E6]">
               Smart Appointment System
