@@ -6,9 +6,11 @@ export function StatCard({
   value: number;
 }) {
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
-      <p className="text-sm text-slate-500">{label}</p>
-      <p className="mt-2 text-3xl font-bold text-slate-900">{value}</p>
+    <div className="min-w-35 flex-1 px-6 py-5">
+      <p className="text-sm text-[#93A69B]">{label}</p>
+      <p className="mt-2 font-mono text-3xl font-semibold tabular-nums text-[#F0A672]">
+        {value}
+      </p>
     </div>
   );
 }

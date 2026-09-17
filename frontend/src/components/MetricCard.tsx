@@ -6,10 +6,9 @@ export function MetricCard({
   value: number;
 }) {
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100">
-      <p className="text-sm text-slate-500">{label}</p>
-
-      <p className="mt-2 text-3xl font-bold text-slate-900">
+    <div className="min-w-35 flex-1 px-6 py-5">
+      <p className="text-sm text-[#93A69B]">{label}</p>
+      <p className="mt-2 font-mono text-3xl font-semibold tabular-nums text-[#7FD9B6]">
         {value}
       </p>
     </div>

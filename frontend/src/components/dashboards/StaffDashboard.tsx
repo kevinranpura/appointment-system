@@ -1,3 +1,4 @@
+// StaffDashboard.tsx
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 
@@ -144,22 +145,22 @@ export default function StaffDashboard({
   };
 
   const statusStyles: Record<string, string> = {
-    WAITING: "bg-amber-50 text-amber-700",
-    CALLED: "bg-indigo-50 text-indigo-700",
-    IN_PROGRESS: "bg-blue-50 text-blue-700",
-    COMPLETED: "bg-emerald-50 text-emerald-700",
-    SKIPPED: "bg-red-50 text-red-700",
+    WAITING: "bg-amber-400/10 text-amber-300",
+    CALLED: "bg-[#2B6E56]/15 text-[#7FD9B6]",
+    IN_PROGRESS: "bg-blue-400/10 text-blue-300",
+    COMPLETED: "bg-emerald-400/10 text-emerald-300",
+    SKIPPED: "bg-red-400/10 text-red-300",
   };
 
   return (
     <Layout user={user} logout={logout} title="Staff Queue Dashboard">
       {message && (
-        <div className="mb-6 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+        <div className="mb-6 rounded-md border border-red-400/20 bg-red-400/10 px-4 py-3 text-sm text-red-300">
           {message}
         </div>
       )}
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-1 divide-y divide-white/10 rounded-md border border-white/10 bg-[#16211C] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
         <StatCard
           label="Waiting"
           value={queue.filter((q) => q.status === "WAITING").length}
@@ -178,10 +179,10 @@ export default function StaffDashboard({
 
       <div className="mt-8 flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-slate-900">
+          <h2 className="text-lg font-semibold text-[#F2F0E6]">
             Live queue
           </h2>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-[#93A69B]">
             Updates automatically in real time
           </p>
         </div>
@@ -189,49 +190,49 @@ export default function StaffDashboard({
         <div className="flex gap-3">
           <button
             onClick={() => setWalkInOpen(true)}
-            className="rounded-xl border border-slate-200 bg-white px-5 py-3 font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+            className="rounded-md border border-white/10 bg-white/5 px-5 py-3 font-semibold text-[#F2F0E6] transition hover:bg-white/10"
           >
-            + Add Walk-in
+            + Add walk-in
           </button>
 
           <button
             onClick={callNext}
             disabled={loading}
-            className="rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
+            className="rounded-md bg-[#A6572E] px-5 py-3 font-semibold text-white transition hover:bg-[#8f4a26] disabled:opacity-50"
           >
             {loading ? "Calling..." : "Call next"}
           </button>
         </div>
       </div>
 
-      <div className="mt-5 overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100">
+      <div className="mt-5 overflow-hidden rounded-md border border-white/10 bg-[#16211C]">
         {queue.length === 0 ? (
           <div className="p-12 text-center">
-            <p className="text-lg font-semibold text-slate-700">
+            <p className="text-lg font-semibold text-[#F2F0E6]">
               Queue is empty
             </p>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-[#93A69B]">
               New check-ins and walk-ins will appear here.
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-white/10">
             {queue.map((entry) => (
               <div
                 key={entry.id}
                 className="flex flex-col gap-4 p-5 md:flex-row md:items-center md:justify-between"
               >
                 <div className="flex items-center gap-4">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-900 font-bold text-white">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-white/10 font-mono font-bold text-[#F2F0E6]">
                     {entry.queue_number.replace("Q-", "")}
                   </div>
 
                   <div>
-                    <p className="font-semibold text-slate-900">
+                    <p className="font-semibold text-[#F2F0E6]">
                       {entry.customer_name}
                     </p>
 
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-[#93A69B]">
                       {entry.service_name || `Service #${entry.service_id}`}
                     </p>
                   </div>
@@ -240,20 +241,20 @@ export default function StaffDashboard({
                 <div className="flex flex-wrap items-center gap-2">
                   <span
                     className={`rounded-full px-3 py-1 text-xs font-semibold ${statusStyles[entry.status] ||
-                      "bg-slate-100 text-slate-600"
+                      "bg-white/5 text-[#93A69B]"
                       }`}
                   >
                     {entry.status}
                   </span>
 
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                  <span className="rounded-full bg-white/5 px-3 py-1 text-xs font-semibold text-[#93A69B]">
                     {entry.priority}
                   </span>
 
                   {entry.status === "CALLED" && (
                     <button
                       onClick={() => updateQueue(entry.id, "start")}
-                      className="rounded-lg bg-slate-900 px-3 py-2 text-xs font-semibold text-white"
+                      className="rounded-md bg-white/10 px-3 py-2 text-xs font-semibold text-[#F2F0E6] transition hover:bg-white/15"
                     >
                       Start
                     </button>
@@ -262,7 +263,7 @@ export default function StaffDashboard({
                   {entry.status === "IN_PROGRESS" && (
                     <button
                       onClick={() => updateQueue(entry.id, "complete")}
-                      className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white"
+                      className="rounded-md bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-emerald-500"
                     >
                       Complete
                     </button>
@@ -272,7 +273,7 @@ export default function StaffDashboard({
                     entry.status === "CALLED") && (
                       <button
                         onClick={() => updateQueue(entry.id, "no-show")}
-                        className="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600"
+                        className="rounded-md border border-red-400/20 px-3 py-2 text-xs font-semibold text-red-300 transition hover:bg-red-400/10"
                       >
                         Skip
                       </button>
@@ -285,23 +286,23 @@ export default function StaffDashboard({
       </div>
 
       {walkInOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+          <div className="w-full max-w-md rounded-md border border-white/10 bg-[#16211C] p-6">
 
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-slate-900">
-                  Add Walk-in
+                <h2 className="text-xl font-semibold text-[#F2F0E6]">
+                  Add walk-in
                 </h2>
 
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-[#93A69B]">
                   Add a customer directly to the queue.
                 </p>
               </div>
 
               <button
                 onClick={() => setWalkInOpen(false)}
-                className="text-slate-400 hover:text-slate-600"
+                className="text-[#93A69B] transition hover:text-[#F2F0E6]"
               >
                 ✕
               </button>
@@ -310,7 +311,7 @@ export default function StaffDashboard({
             <div className="mt-6 space-y-4">
 
               <div>
-                <label className="text-sm font-medium text-slate-700">
+                <label className="text-sm font-medium text-[#F2F0E6]">
                   Customer name
                 </label>
 
@@ -320,12 +321,12 @@ export default function StaffDashboard({
                     setWalkInName(e.target.value)
                   }
                   placeholder="John Doe"
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+                  className="mt-1 w-full rounded-md border border-white/10 bg-[#0E1712] px-4 py-3 text-[#F2F0E6] outline-none transition placeholder:text-white/30 focus:border-[#2B6E56]"
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium text-slate-700">
+                <label className="text-sm font-medium text-[#F2F0E6]">
                   Phone number
                 </label>
 
@@ -335,12 +336,12 @@ export default function StaffDashboard({
                     setWalkInPhone(e.target.value)
                   }
                   placeholder="9876543210"
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+                  className="mt-1 w-full rounded-md border border-white/10 bg-[#0E1712] px-4 py-3 text-[#F2F0E6] outline-none transition placeholder:text-white/30 focus:border-[#2B6E56]"
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium text-slate-700">
+                <label className="text-sm font-medium text-[#F2F0E6]">
                   Service
                 </label>
 
@@ -349,7 +350,7 @@ export default function StaffDashboard({
                   onChange={(e) =>
                     setWalkInService(Number(e.target.value))
                   }
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none"
+                  className="mt-1 w-full rounded-md border border-white/10 bg-[#0E1712] px-4 py-3 text-[#F2F0E6] outline-none"
                 >
                   {services.map((service) => (
                     <option
@@ -363,7 +364,7 @@ export default function StaffDashboard({
               </div>
 
               <div>
-                <label className="text-sm font-medium text-slate-700">
+                <label className="text-sm font-medium text-[#F2F0E6]">
                   Priority
                 </label>
 
@@ -377,7 +378,7 @@ export default function StaffDashboard({
                       | "EMERGENCY"
                     )
                   }
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none"
+                  className="mt-1 w-full rounded-md border border-white/10 bg-[#0E1712] px-4 py-3 text-[#F2F0E6] outline-none"
                 >
                   <option value="NORMAL">Normal</option>
                   <option value="PRIORITY">Priority</option>
@@ -387,9 +388,9 @@ export default function StaffDashboard({
 
               <button
                 onClick={addWalkIn}
-                className="w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white hover:bg-indigo-700"
+                className="w-full rounded-md bg-[#A6572E] py-3 font-semibold text-white transition hover:bg-[#8f4a26]"
               >
-                Add to Queue
+                Add to queue
               </button>
 
             </div>

@@ -1,3 +1,4 @@
+// CustomerDashboard.tsx
 import { useEffect, useState } from "react";
 import api from "../../api";
 
@@ -343,26 +344,26 @@ export default function CustomerDashboard({
     return (
         <Layout user={user} logout={logout} title="Customer Dashboard">
             {message && (
-                <div className="mb-6 rounded-xl bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
+                <div className="mb-6 rounded-md border border-[#2B6E56]/30 bg-[#2B6E56]/10 px-4 py-3 text-sm text-[#7FD9B6]">
                     {message}
                 </div>
             )}
 
-            <div className="grid gap-6 lg:grid-cols-3">
-                <div className="rounded-2xl bg-indigo-600 p-6 text-white shadow-sm lg:col-span-2">
-                    <p className="text-sm text-indigo-200">Welcome back</p>
-                    <h2 className="mt-2 text-2xl font-bold">
+            <div className="grid gap-4 lg:grid-cols-3">
+                <div className="rounded-md bg-[#2B6E56] p-6 text-white lg:col-span-2">
+                    <p className="text-sm text-white/60">Welcome back</p>
+                    <h2 className="mt-2 text-2xl font-semibold">
                         Book your next appointment
                     </h2>
 
                     <div className="mt-6 grid gap-4 md:grid-cols-3">
                         <div>
-                            <label className="text-xs text-indigo-200">Service</label>
+                            <label className="text-xs text-white/60">Service</label>
 
                             <select
                                 value={serviceId}
                                 onChange={(e) => setServiceId(Number(e.target.value))}
-                                className="mt-1 w-full rounded-xl border-0 bg-white px-3 py-3 text-sm text-slate-900"
+                                className="mt-1 w-full rounded-md border-0 bg-[#12241D] px-3 py-3 text-sm text-[#F2F0E6]"
                             >
                                 {services.map((service) => (
                                     <option key={service.id} value={Number(service.id)}>
@@ -373,27 +374,27 @@ export default function CustomerDashboard({
                         </div>
 
                         <div>
-                            <label className="text-xs text-indigo-200">Date</label>
+                            <label className="text-xs text-white/60">Date</label>
 
                             <input
                                 type="date"
                                 value={date}
                                 onChange={(e) => setDate(e.target.value)}
-                                className="mt-1 w-full rounded-xl border-0 bg-white px-3 py-3 text-sm text-slate-900"
+                                className="mt-1 w-full rounded-md border-0 bg-[#12241D] px-3 py-3 text-sm text-[#F2F0E6]"
                             />
                         </div>
 
                         <div className="flex items-end gap-2">
                             <button
                                 onClick={findAvailability}
-                                className="flex-1 rounded-xl bg-white px-4 py-3 font-semibold text-indigo-600 hover:bg-indigo-50"
+                                className="flex-1 rounded-md bg-white px-4 py-3 font-semibold text-[#1F4B3F] transition hover:bg-white/90"
                             >
                                 Find slots
                             </button>
 
                             <button
                                 onClick={() => setWaitlistOpen(true)}
-                                className="rounded-xl border border-white/30 bg-indigo-500 px-4 py-3 font-semibold text-white hover:bg-indigo-400"
+                                className="rounded-md border border-white/20 bg-white/10 px-4 py-3 font-semibold text-white transition hover:bg-white/20"
                             >
                                 Waitlist
                             </button>
@@ -401,49 +402,49 @@ export default function CustomerDashboard({
                     </div>
                 </div>
 
-                <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-                    <p className="text-sm text-slate-500">Appointments</p>
-                    <p className="mt-2 text-4xl font-bold text-slate-900">
+                <div className="flex flex-col justify-center rounded-md border border-white/10 bg-[#16211C] p-6">
+                    <p className="text-sm text-[#93A69B]">Appointments</p>
+                    <p className="mt-2 font-mono text-4xl font-semibold tabular-nums text-[#7FD9B6]">
                         {appointments.length}
                     </p>
-                    <p className="mt-2 text-sm text-slate-500">
+                    <p className="mt-2 text-sm text-[#93A69B]">
                         Your scheduled appointments
                     </p>
                 </div>
             </div>
 
             {reservation && (
-                <section className="mt-8 rounded-2xl border border-indigo-200 bg-indigo-50 p-6">
+                <section className="mt-8 rounded-md border border-[#2B6E56]/30 bg-[#16211C] p-6">
                     <div className="flex flex-col gap-6">
 
                         <div className="flex items-start justify-between">
                             <div>
-                                <p className="text-sm font-semibold text-indigo-600">
-                                    Slot Reserved
+                                <p className="text-sm font-semibold text-[#7FD9B6]">
+                                    Slot reserved
                                 </p>
 
-                                <h2 className="mt-1 text-xl font-bold text-slate-900">
+                                <h2 className="mt-1 text-xl font-semibold text-[#F2F0E6]">
                                     Complete your booking
                                 </h2>
 
-                                <p className="mt-1 text-sm text-slate-600">
+                                <p className="mt-1 text-sm text-[#93A69B]">
                                     This slot is temporarily held for you.
                                 </p>
                             </div>
 
-                            <div className="rounded-xl bg-white px-4 py-3 text-center shadow-sm">
-                                <p className="text-xs text-slate-500">
+                            <div className="rounded-md border border-white/10 bg-[#0E1712] px-4 py-3 text-center">
+                                <p className="text-xs text-[#93A69B]">
                                     Expires in
                                 </p>
 
-                                <p className="text-2xl font-bold text-indigo-600">
+                                <p className="font-mono text-2xl font-semibold tabular-nums text-[#7FD9B6]">
                                     {formatCountdown(reservationSeconds)}
                                 </p>
                             </div>
                         </div>
 
-                        <div className="rounded-xl bg-white p-4">
-                            <p className="text-sm font-semibold text-slate-900">
+                        <div className="rounded-md border border-white/10 bg-[#0E1712] p-4">
+                            <p className="text-sm font-semibold text-[#F2F0E6]">
                                 {services.find(
                                     (service) =>
                                         Number(service.id) ===
@@ -451,7 +452,7 @@ export default function CustomerDashboard({
                                 )?.name || "Appointment"}
                             </p>
 
-                            <p className="mt-1 text-sm text-slate-500">
+                            <p className="mt-1 text-sm text-[#93A69B]">
                                 {new Date(
                                     reservation.start_time
                                 ).toLocaleString([], {
@@ -466,19 +467,19 @@ export default function CustomerDashboard({
                             <button
                                 onClick={cancelReservation}
                                 disabled={reserving}
-                                className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                                className="rounded-md border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-[#F2F0E6] transition hover:bg-white/10 disabled:opacity-50"
                             >
-                                Cancel Reservation
+                                Cancel reservation
                             </button>
 
                             <button
                                 onClick={confirmReservation}
                                 disabled={reserving || reservationSeconds <= 0}
-                                className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                                className="rounded-md bg-[#2B6E56] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#35836A] disabled:cursor-not-allowed disabled:opacity-50"
                             >
                                 {reserving
                                     ? "Confirming..."
-                                    : "Confirm Appointment →"}
+                                    : "Confirm appointment"}
                             </button>
 
                         </div>
@@ -488,8 +489,8 @@ export default function CustomerDashboard({
             )}
 
             {slots.length > 0 && (
-                <section className="mt-8 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
-                    <h2 className="font-semibold text-slate-900">Available slots</h2>
+                <section className="mt-8 rounded-md border border-white/10 bg-[#16211C] p-6">
+                    <h2 className="font-semibold text-[#F2F0E6]">Available slots</h2>
 
                     <div className="mt-4 grid gap-3 sm:grid-cols-3 lg:grid-cols-5">
                         {slots
@@ -502,18 +503,18 @@ export default function CustomerDashboard({
                                     <button
                                         key={index}
                                         onClick={() => holdSlot(slot)}
-                                        className="rounded-xl border border-slate-200 p-4 text-left transition hover:border-indigo-500 hover:bg-indigo-50"
+                                        className="rounded-md border border-white/10 bg-[#0E1712] p-4 text-left transition hover:border-[#2B6E56] hover:bg-[#2B6E56]/10"
                                     >
-                                        <p className="font-semibold text-slate-900">
+                                        <p className="font-mono font-semibold tabular-nums text-[#F2F0E6]">
                                             {formatSlotTime(start)}
                                         </p>
 
-                                        <p className="mt-1 text-xs text-slate-500">
+                                        <p className="mt-1 text-xs text-[#93A69B]">
                                             until {formatSlotTime(end)}
                                         </p>
 
-                                        <p className="mt-2 text-xs font-medium text-indigo-600">
-                                            Reserve this slot →
+                                        <p className="mt-2 text-xs font-medium text-[#7FD9B6]">
+                                            Reserve this slot
                                         </p>
                                     </button>
                                 );
@@ -523,99 +524,99 @@ export default function CustomerDashboard({
             )}
 
             <section className="mt-8">
-                <h2 className="mb-4 text-lg font-semibold text-slate-900">
+                <h2 className="mb-4 text-lg font-semibold text-[#F2F0E6]">
                     My appointments
                 </h2>
 
-                <div className="space-y-3">
-                    {appointments.length === 0 ? (
-                        <div className="rounded-2xl bg-white p-8 text-center text-sm text-slate-500">
-                            No appointments yet.
-                        </div>
-                    ) : (
-                        appointments.map((appointment) => (
+                {appointments.length === 0 ? (
+                    <div className="rounded-md border border-white/10 bg-[#16211C] p-8 text-center text-sm text-[#93A69B]">
+                        No appointments yet.
+                    </div>
+                ) : (
+                    <div className="divide-y divide-white/10 overflow-hidden rounded-md border border-white/10 bg-[#16211C]">
+                        {appointments.map((appointment) => (
                             <div
                                 key={appointment.id}
-                                className="flex flex-col justify-between gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 md:flex-row md:items-center"
+                                className="flex flex-col justify-between gap-4 p-5 md:flex-row md:items-center"
                             >
                                 <div>
-                                    <p className="font-semibold text-slate-900">
+                                    <p className="font-mono font-semibold text-[#F2F0E6]">
                                         {appointment.appointment_number}
                                     </p>
 
-                                    <p className="mt-1 text-sm text-slate-500">
+                                    <p className="mt-1 text-sm text-[#93A69B]">
                                         {appointment.service_name || "Appointment"}
                                     </p>
 
-                                    <p className="mt-1 text-sm text-slate-500">
+                                    <p className="mt-1 text-sm text-[#93A69B]">
                                         {new Date(appointment.start_time).toLocaleString()}
                                     </p>
                                 </div>
 
                                 <div className="flex items-center gap-3">
-                                    <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-600">
+                                    <span className="rounded-full bg-[#2B6E56]/15 px-3 py-1 text-xs font-semibold text-[#7FD9B6]">
                                         {appointment.status}
                                     </span>
 
                                     {appointment.status === "CONFIRMED" && (
                                         <button
                                             onClick={() => checkIn(appointment.id)}
-                                            className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+                                            className="rounded-md bg-white/10 px-4 py-2 text-sm font-semibold text-[#F2F0E6] transition hover:bg-white/15"
                                         >
                                             Check in
                                         </button>
                                     )}
                                 </div>
                             </div>
-                        ))
-                    )}
-                </div>
+                        ))}
+                    </div>
+                )}
             </section>
 
             <section className="mt-8">
                 <div className="mb-4 flex items-center justify-between">
                     <div>
-                        <h2 className="text-lg font-semibold text-slate-900">
+                        <h2 className="text-lg font-semibold text-[#F2F0E6]">
                             My waitlist
                         </h2>
 
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-[#93A69B]">
                             Track your requests for unavailable slots.
                         </p>
                     </div>
 
                     <button
                         onClick={() => setWaitlistOpen(true)}
-                        className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
+                        className="rounded-md bg-[#A6572E] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#8f4a26]"
                     >
-                        + Join Waitlist
+                        + Join waitlist
                     </button>
                 </div>
 
-                <div className="space-y-3">
-                    {waitlist.length === 0 ? (
-                        <div className="rounded-2xl bg-white p-8 text-center text-sm text-slate-500 shadow-sm ring-1 ring-slate-100">
-                            You are not currently on any waitlists.
-                        </div>
-                    ) : (
-                        waitlist.map((entry) => (
+                {waitlist.length === 0 ? (
+                    <div className="rounded-md border border-white/10 bg-[#16211C] p-8 text-center text-sm text-[#93A69B]">
+                        You are not currently on any waitlists.
+                    </div>
+                ) : (
+                    <div className="divide-y divide-white/10 overflow-hidden rounded-md border border-white/10 bg-[#16211C]">
+                        {waitlist.map((entry) => (
                             <div
                                 key={entry.id}
-                                className="flex flex-col justify-between gap-4 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-100 md:flex-row md:items-center"
+                                className="flex flex-col justify-between gap-4 p-5 md:flex-row md:items-center"
                             >
                                 <div>
-                                    <p className="font-semibold text-slate-900">
+                                    <p className="font-semibold text-[#F2F0E6]">
                                         {entry.service_name ||
                                             `Service #${entry.service_id}`}
                                     </p>
 
-                                    <p className="mt-1 text-sm text-slate-500">
+                                    <p className="mt-1 text-sm text-[#93A69B]">
                                         {entry.branch_name || "Branch #1"} ·{" "}
                                         {formatWaitlistDate(entry.requested_date)}
                                     </p>
 
                                     {entry.requested_start_time && (
-                                        <p className="mt-1 text-xs text-slate-400">
+                                        <p className="mt-1 text-xs text-[#93A69B]/80">
                                             Preferred time:{" "}
                                             {formatSlotTime(entry.requested_start_time)}
                                             {entry.requested_end_time &&
@@ -629,10 +630,10 @@ export default function CustomerDashboard({
                                 <div className="flex flex-wrap items-center gap-2">
                                     <span
                                         className={`rounded-full px-3 py-1 text-xs font-semibold ${entry.priority === "EMERGENCY"
-                                            ? "bg-red-50 text-red-700"
+                                            ? "bg-red-400/10 text-red-300"
                                             : entry.priority === "PRIORITY"
-                                                ? "bg-amber-50 text-amber-700"
-                                                : "bg-slate-100 text-slate-600"
+                                                ? "bg-[#A6572E]/15 text-[#F0A672]"
+                                                : "bg-white/5 text-[#93A69B]"
                                             }`}
                                     >
                                         {entry.priority}
@@ -640,10 +641,10 @@ export default function CustomerDashboard({
 
                                     <span
                                         className={`rounded-full px-3 py-1 text-xs font-semibold ${entry.status === "OFFERED"
-                                            ? "bg-emerald-50 text-emerald-700"
+                                            ? "bg-emerald-400/10 text-emerald-300"
                                             : entry.status === "CANCELLED"
-                                                ? "bg-red-50 text-red-700"
-                                                : "bg-indigo-50 text-indigo-700"
+                                                ? "bg-red-400/10 text-red-300"
+                                                : "bg-[#2B6E56]/15 text-[#7FD9B6]"
                                             }`}
                                     >
                                         {entry.status}
@@ -651,7 +652,7 @@ export default function CustomerDashboard({
 
                                     {entry.status === "OFFERED" &&
                                         entry.expires_at && (
-                                            <span className="text-xs text-slate-500">
+                                            <span className="font-mono text-xs text-[#93A69B]">
                                                 Expires{" "}
                                                 {new Date(
                                                     entry.expires_at
@@ -665,54 +666,54 @@ export default function CustomerDashboard({
                                     {entry.status === "WAITING" && (
                                         <button
                                             onClick={() => cancelWaitlist(entry.id)}
-                                            className="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 hover:bg-red-50"
+                                            className="rounded-md border border-red-400/20 px-3 py-2 text-xs font-semibold text-red-300 transition hover:bg-red-400/10"
                                         >
                                             Cancel
                                         </button>
                                     )}
                                 </div>
                             </div>
-                        ))
-                    )}
-                </div>
+                        ))}
+                    </div>
+                )}
             </section>
 
             {waitlistOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 px-4">
-                    <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
+                    <div className="w-full max-w-md rounded-md border border-white/10 bg-[#16211C] p-6">
                         <div className="flex items-start justify-between">
                             <div>
-                                <h2 className="text-xl font-bold text-slate-900">
-                                    Join Waitlist
+                                <h2 className="text-xl font-semibold text-[#F2F0E6]">
+                                    Join waitlist
                                 </h2>
 
-                                <p className="mt-1 text-sm text-slate-500">
+                                <p className="mt-1 text-sm text-[#93A69B]">
                                     We'll place you in line for this service.
                                 </p>
                             </div>
 
                             <button
                                 onClick={() => setWaitlistOpen(false)}
-                                className="text-slate-400 hover:text-slate-600"
+                                className="text-[#93A69B] transition hover:text-[#F2F0E6]"
                             >
                                 ✕
                             </button>
                         </div>
 
                         <div className="mt-6 space-y-4">
-                            <div className="rounded-xl bg-slate-50 p-4">
-                                <p className="text-xs text-slate-500">
+                            <div className="rounded-md border border-white/10 bg-[#0E1712] p-4">
+                                <p className="text-xs text-[#93A69B]">
                                     Service
                                 </p>
 
-                                <p className="mt-1 font-semibold text-slate-900">
+                                <p className="mt-1 font-semibold text-[#F2F0E6]">
                                     {services.find(
                                         (service) =>
                                             Number(service.id) === Number(serviceId)
                                     )?.name || `Service #${serviceId}`}
                                 </p>
 
-                                <p className="mt-1 text-sm text-slate-500">
+                                <p className="mt-1 text-sm text-[#93A69B]">
                                     {new Date(
                                         `${date}T00:00:00`
                                     ).toLocaleDateString()}
@@ -720,7 +721,7 @@ export default function CustomerDashboard({
                             </div>
 
                             <div>
-                                <label className="text-sm font-medium text-slate-700">
+                                <label className="text-sm font-medium text-[#F2F0E6]">
                                     Preferred start time
                                 </label>
 
@@ -730,16 +731,16 @@ export default function CustomerDashboard({
                                     onChange={(e) =>
                                         setWaitlistStartTime(e.target.value)
                                     }
-                                    className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+                                    className="mt-1 w-full rounded-md border border-white/10 bg-[#0E1712] px-4 py-3 text-[#F2F0E6] outline-none transition focus:border-[#2B6E56]"
                                 />
 
-                                <p className="mt-1 text-xs text-slate-400">
+                                <p className="mt-1 text-xs text-[#93A69B]/80">
                                     Optional
                                 </p>
                             </div>
 
                             <div>
-                                <label className="text-sm font-medium text-slate-700">
+                                <label className="text-sm font-medium text-[#F2F0E6]">
                                     Preferred end time
                                 </label>
 
@@ -749,16 +750,16 @@ export default function CustomerDashboard({
                                     onChange={(e) =>
                                         setWaitlistEndTime(e.target.value)
                                     }
-                                    className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+                                    className="mt-1 w-full rounded-md border border-white/10 bg-[#0E1712] px-4 py-3 text-[#F2F0E6] outline-none transition focus:border-[#2B6E56]"
                                 />
 
-                                <p className="mt-1 text-xs text-slate-400">
+                                <p className="mt-1 text-xs text-[#93A69B]/80">
                                     Optional
                                 </p>
                             </div>
 
                             <div>
-                                <label className="text-sm font-medium text-slate-700">
+                                <label className="text-sm font-medium text-[#F2F0E6]">
                                     Priority
                                 </label>
 
@@ -772,7 +773,7 @@ export default function CustomerDashboard({
                                             | "EMERGENCY"
                                         )
                                     }
-                                    className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-indigo-500"
+                                    className="mt-1 w-full rounded-md border border-white/10 bg-[#0E1712] px-4 py-3 text-[#F2F0E6] outline-none transition focus:border-[#2B6E56]"
                                 >
                                     <option value="NORMAL">Normal</option>
                                     <option value="PRIORITY">Priority</option>
@@ -783,11 +784,11 @@ export default function CustomerDashboard({
                             <button
                                 onClick={joinWaitlistHandler}
                                 disabled={waitlistLoading}
-                                className="w-full rounded-xl bg-indigo-600 py-3 font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                                className="w-full rounded-md bg-[#A6572E] py-3 font-semibold text-white transition hover:bg-[#8f4a26] disabled:opacity-50"
                             >
                                 {waitlistLoading
                                     ? "Joining..."
-                                    : "Join Waitlist"}
+                                    : "Join waitlist"}
                             </button>
                         </div>
                     </div>
